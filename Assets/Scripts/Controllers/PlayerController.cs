@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private Joystick joystick;
+
     public delegate void ShotAction();
 
     private Rigidbody _playerRb;
@@ -25,9 +27,9 @@ public class PlayerController : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
     }
 
-    void Update() 
+    void Update()
     {
-        MovePlayer();             
+        MovePlayer();
         HUD.ShowStats();
 
         ShotProjectiles();
@@ -35,8 +37,10 @@ public class PlayerController : MonoBehaviour
 
     private void MovePlayer()
     {
-        _horizontalInput = PlayerMovementController.HorizontalInputController(_horizontalInput, _playerRb, _trust);
-        _verticalInput = PlayerMovementController.VerticalInputController(_verticalInput, _playerRb, _trust);
+        _horizontalInput = PlayerMovementController.HorizontalInputController
+            (joystick.Horizontal, _horizontalInput, _playerRb, _trust);
+        _verticalInput = PlayerMovementController.VerticalInputController
+            (joystick.Vertical, _verticalInput, _playerRb, _trust);
 
         PlayerMovementController.StopOutOfBounds(transform, _playerRb);
         PlayerMovementController.RotateOnMovement(transform, _horizontalInput, _torque);
@@ -45,25 +49,29 @@ public class PlayerController : MonoBehaviour
 
     private void ShotProjectiles()
     {
-
+#if UNITY_ANDROID
+        
+#else 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-
-            if (GameManagerAsteroids.Instance.numberOfWeapons <= 9)
-            {
-                EventBroker.CallShotAction();              
-                _audioSource.PlayOneShot(_shot);
-                PlayerMovementController.BackOnShot(_playerRb, 5f);                
-            }
-            else
-            {
-                GameManagerAsteroids.Instance.numberOfWeapons /= 3;
-                GameManagerAsteroids.Instance.numberOfUpgrades++;
-            }
+            ShootProjectile();
         }
+#endif
+
     }
 
-    
-
-
+    public void ShootProjectile()
+    {
+        if (GameManagerAsteroids.Instance.numberOfWeapons <= 9)
+        {
+            EventBroker.CallShotAction();
+            _audioSource.PlayOneShot(_shot);
+            PlayerMovementController.BackOnShot(_playerRb, 5f);
+        }
+        else
+        {
+            GameManagerAsteroids.Instance.numberOfWeapons /= 3;
+            GameManagerAsteroids.Instance.numberOfUpgrades++;
+        }
+    }
 }
