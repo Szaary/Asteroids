@@ -7,9 +7,6 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Joystick joystick;
-
-    public delegate void ShotAction();
-
     private Rigidbody _playerRb;
 
     [SerializeField] private float _trust;

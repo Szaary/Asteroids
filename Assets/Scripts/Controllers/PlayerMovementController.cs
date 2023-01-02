@@ -10,10 +10,10 @@ public static class PlayerMovementController
 #if UNITY_ANDROID
         horizontalInput = joystickHorizontal;
 #else
-horizontalInput = Input.GetAxis("Horizontal");
+        horizontalInput = Input.GetAxis("Horizontal");
 #endif
 
-                          rigidbody.AddForce(Vector3.right * trust * horizontalInput, ForceMode.Acceleration);
+        rigidbody.AddForce(Vector3.right * trust * horizontalInput, ForceMode.Acceleration);
 
 
         if (rigidbody.velocity.x < 0 && horizontalInput > 0)

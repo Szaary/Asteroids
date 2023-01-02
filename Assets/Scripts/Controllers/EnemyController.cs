@@ -1,12 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
     private Rigidbody _enemyRb;
     private GameObject _player;
-    private bool _canMove = false;
+    private bool _canMove;
 
     [SerializeField] private float _trust;
     [SerializeField] private float _boostTrust;
