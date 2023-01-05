@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -6,6 +7,7 @@ using UnityEngine;
 public class HUD : MonoBehaviour
 {
     private static HUD _instance;
+
     public static HUD Instance
     {
         get
@@ -15,14 +17,14 @@ public class HUD : MonoBehaviour
                 GameObject go = new GameObject("HUD");
                 go.AddComponent<HUD>();
             }
+
             return _instance;
         }
     }
 
-    [SerializeField] private TextMeshProUGUI _weapons;
     [SerializeField] private TextMeshProUGUI _enemiesKilled;
     [SerializeField] private TextMeshProUGUI _wave;
-    [SerializeField] private TextMeshProUGUI _upgrades;
+
 
     [SerializeField] private Light _shotLight;
     [SerializeField] private Light _explodeLight;
@@ -31,60 +33,57 @@ public class HUD : MonoBehaviour
 
     private void Awake()
     {
-        EventBroker.ShotAction += StartIFlashCorutine;
-        EventBroker.ExplodeAction += StartIFlashExplodeCorutine;
+        EventBroker.ShotAction += StartIFlashCoroutine;
+        EventBroker.ExplodeAction += StartIFlashExplodeCoroutine;
 
-       _instance = this;
+        _instance = this;
 
-        _weapons = GameObject.Find("Weapons").GetComponent<TextMeshProUGUI>(); ;
         _enemiesKilled = GameObject.Find("Enemies Killed").GetComponent<TextMeshProUGUI>();
         _wave = GameObject.Find("Wave").GetComponent<TextMeshProUGUI>();
-        _upgrades = GameObject.Find("Upgrades").GetComponent<TextMeshProUGUI>();
-
         _shotLight = GameObject.Find("ShotLight").GetComponent<Light>();
         _explodeLight = GameObject.Find("ExplodeLight").GetComponent<Light>();
 
         _destroyAnimationTime = 1;
     }
+
     private void OnDisable()
     {
-        EventBroker.ShotAction -= StartIFlashCorutine;
-        EventBroker.ExplodeAction -= StartIFlashExplodeCorutine;
-
-        //StopAllCoroutines();
+        EventBroker.ShotAction -= StartIFlashCoroutine;
+        EventBroker.ExplodeAction -= StartIFlashExplodeCoroutine;
     }
 
-    public static void ShowStats()
+    private void Update()
     {
-        
-        HUD.Instance._weapons.GetComponent<TextMeshProUGUI>().text = "Weapons: " + GameManagerAsteroids.Instance.numberOfWeapons;
-        HUD.Instance._enemiesKilled.text = "Enemies Killed: " + GameManagerAsteroids.Instance.enemiesKilled;
-        HUD.Instance._wave.text = "Wave: " + GameManagerAsteroids.Instance.waveNumber;
-        HUD.Instance._upgrades.text = "Upgrades: " + GameManagerAsteroids.Instance.numberOfUpgrades;
+        ShowStats();
     }
-    private void StartIFlashCorutine()
+
+    private void ShowStats()
     {
-        StartCoroutine(IFlashShotLight());
+        _enemiesKilled.text = "Enemies Killed: " + GameManager.Instance.enemiesKilled;
+        _wave.text = "Wave: " + GameManager.Instance.waveNumber;
     }
-    private static IEnumerator IFlashShotLight()
+
+    private void StartIFlashCoroutine()
     {
-        HUD.Instance._shotLight.gameObject.SetActive(true);
+        StartCoroutine(FlashShotLight());
+    }
+
+    private IEnumerator FlashShotLight()
+    {
+        _shotLight.gameObject.SetActive(true);
         yield return new WaitForSeconds(0.1f);
-        HUD.Instance._shotLight.gameObject.SetActive(false);
+        _shotLight.gameObject.SetActive(false);
     }
 
-
-    private void StartIFlashExplodeCorutine()
+    private void StartIFlashExplodeCoroutine()
     {
-        StartCoroutine(IFlashExplodeLight());
+        StartCoroutine(FlashExplodeLight());
     }
-    public static IEnumerator IFlashExplodeLight()
+
+    private IEnumerator FlashExplodeLight()
     {
-
-        HUD.Instance._explodeLight.intensity = 0.6f;
-        yield return new WaitForSeconds(HUD.Instance._destroyAnimationTime - 0.8f);
-        HUD.Instance._explodeLight.intensity = 0;
-
+        _explodeLight.intensity = 0.6f;
+        yield return new WaitForSecondsRealtime(_destroyAnimationTime - 0.8f);
+        _explodeLight.intensity = 0;
     }
-
 }

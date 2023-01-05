@@ -1,18 +1,17 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManagerAsteroids : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
-    private static GameManagerAsteroids _instance;
-    public static GameManagerAsteroids Instance
+    private static GameManager _instance;
+    public static GameManager Instance
     {
         get
         {
             if (_instance == null)
             {
                 GameObject go = new GameObject("GameManagerAsteroids");
-                go.AddComponent<GameManagerAsteroids>();
+                go.AddComponent<GameManager>();
             }
             return _instance;
         }
@@ -30,9 +29,6 @@ public class GameManagerAsteroids : MonoBehaviour
     public float maxPlayerVelocityX;
     public float enemySpawnFrequency { get; set; }
     public float enemyStopTime { get; set; }
-    [Range(0, 9)]
-    public int numberOfWeapons;
-    public int numberOfUpgrades { get; set; }
     public int enemiesKilled { get; set; }
     public int waveNumber { get; set; }
     private float cameraRotation { get; set; }
@@ -51,27 +47,31 @@ public class GameManagerAsteroids : MonoBehaviour
         maxPlayerVelocityX = 20;
         enemySpawnFrequency = 1;
         enemyStopTime = 4;
-        numberOfWeapons = 1;
         enemiesKilled = 0;
         waveNumber = 0;
-        numberOfUpgrades = 0;
         
+        EnemySpawnManager.AllEnemiesDestroyed += OnAllEnemiesDestroyed;
     }
 
-
-
-    public static void RotateCamera(float SkyboxRotationY)
+    private void OnDestroy()
     {
-        RenderSettings.skybox.SetFloat("_Rotation", SkyboxRotationY);
+        EnemySpawnManager.AllEnemiesDestroyed -= OnAllEnemiesDestroyed;
     }
 
-    public static IEnumerator IRotateSkybox(int rotation)
+    private void OnAllEnemiesDestroyed()
+    {
+        StartCoroutine(RotateSkybox(40));
+        
+        waveNumber++;
+    }
+
+    private IEnumerator RotateSkybox(int rotation)
     {
         for (int i = 0; i < rotation; i++)
         {
-            yield return new WaitForSeconds(0.06f);
-            GameManagerAsteroids.RotateCamera(GameManagerAsteroids.Instance.cameraRotation);
-            GameManagerAsteroids.Instance.cameraRotation += 0.1f;
+            yield return new WaitForSecondsRealtime(0.06f);
+            RenderSettings.skybox.SetFloat("_Rotation", cameraRotation);
+            cameraRotation += 0.1f;
         }
     }
 

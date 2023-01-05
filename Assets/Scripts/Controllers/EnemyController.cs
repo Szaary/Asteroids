@@ -1,49 +1,74 @@
 using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class EnemyController : MonoBehaviour
 {
-    private Rigidbody _enemyRb;
-    private GameObject _player;
-    private bool _canMove;
 
+    [SerializeField] private int experienceGain;
+    
     [SerializeField] private float _trust;
     [SerializeField] private float _boostTrust;
     [SerializeField] private float _stopRange;
     [SerializeField] private float _floatingTime;
-    private bool _isAlive = true;
 
-    private Light _iExplodeLight;
-
-    private AudioSource _audioSource;
+    [SerializeField] private GameObject destroyParticle;
     [SerializeField] private AudioClip _explodeSound;
     [SerializeField] private AudioClip _startBoost;
+   
+    private bool _isAlive;
+    private AudioSource _audioSource;
     private bool _canPlaySound = true;
+    private LevelSystem _levelSystem;
+    private Rigidbody _enemyRb;
+    private GameObject _player;
+    private bool _canMove;
 
-    void Start()
+    public EnemySpawnManager manager { get; set; }
+
+    private void Awake()
     {
         _player = GameObject.Find("Player");
         _enemyRb = GetComponent<Rigidbody>();
         _audioSource = GetComponent<AudioSource>();
-        _enemyRb.AddForce(Vector3.back * _trust, ForceMode.Impulse);        
-        _iExplodeLight = gameObject.GetComponentInChildren<Light>();
+        _levelSystem = _player.GetComponent<LevelSystem>();
     }
 
-    void Update()
+    private void OnEnable()
+    {
+        _enemyRb.AddForce(Vector3.back * _trust, ForceMode.Impulse);
+        _isAlive = true;
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+        _enemyRb.velocity= Vector3.zero;
+        _enemyRb.angularVelocity = Vector3.zero;
+        _canMove = false;
+        _boostTrust = 0;
+    }
+
+    private void Update()
     {
         StopEnemyAfterSpawn();
+        
+        if (transform.position.z < -5)
+        {
+            StartCoroutine(DestroyMyselfAfterSomeTime(0.1f));
+        }
     }
 
     private void StopEnemyAfterSpawn()
     {
-        float range = Random.Range(0, _stopRange);
-        if ((transform.position.z + range) < GameManagerAsteroids.Instance.borderZ && _canMove == false)
+        var range = Random.Range(0, _stopRange);
+        if ((transform.position.z + range) < GameManager.Instance.borderZ && _canMove == false)
         {
             _enemyRb.velocity *= 0.015f;
             _canMove = true;
             LookAtPlayer();
         }
-        if (_canMove == true)
+        if (_canMove)
         {
             _boostTrust = 0.75f;
             StartCoroutine(SendEnemyToPlayer());
@@ -52,17 +77,17 @@ public class EnemyController : MonoBehaviour
 
     private void LookAtPlayer()
     {
-        Vector3 lookVector = _player.transform.position - transform.position;
-        Quaternion rot = Quaternion.LookRotation(lookVector);
+        var lookVector = _player.transform.position - transform.position;
+        var rot = Quaternion.LookRotation(lookVector);
         transform.rotation = Quaternion.Slerp(transform.rotation, rot, 1);
     }
 
 
-    IEnumerator SendEnemyToPlayer()
+    private IEnumerator SendEnemyToPlayer()
     {
         if (_isAlive)
         {
-            yield return new WaitForSeconds(GameManagerAsteroids.Instance.enemyStopTime);
+            yield return new WaitForSeconds(GameManager.Instance.enemyStopTime);
             if (_canPlaySound)
             {
                 _audioSource.PlayOneShot(_startBoost);
@@ -74,8 +99,8 @@ public class EnemyController : MonoBehaviour
 
     private Vector3 GenerateEnemyTargetLocation()
     {
-        Vector3 lookDirection = (_player.transform.position - transform.position).normalized;
-        float x = Random.Range(-0.5f, 0.5f);
+        var lookDirection = (_player.transform.position - transform.position).normalized;
+        var x = Random.Range(-0.5f, 0.5f);
         lookDirection.x += x;
         return lookDirection;
     }
@@ -84,32 +109,27 @@ public class EnemyController : MonoBehaviour
     {
         if (collision.collider.CompareTag("Player"))
         {   
-            GameManagerAsteroids.Instance.numberOfWeapons /= 2;
-            Destroy(gameObject);
+            StartCoroutine(DestroyMyselfAfterSomeTime(_floatingTime));
         }
+        
         if (collision.collider.CompareTag("Missile"))
         {
             _audioSource.PlayOneShot(_explodeSound);
             ChangePositionAfterHitByMissile();
-            StartCoroutine(IGenerateExplosionEffectOnHitByMissile());
-            Destroy(collision.gameObject);
+            Instantiate(destroyParticle, transform);
+            collision.gameObject.SetActive(false);
             if (_isAlive)
             {
-                GameManagerAsteroids.Instance.enemiesKilled++;
+                GameManager.Instance.enemiesKilled++;
                 EventBroker.CallExplodeAction();
-                StartCoroutine(IDestroyMyselfAfterSomeTime());
+                StartCoroutine(DestroyMyselfAfterSomeTime(_floatingTime));
             }
             _isAlive = false;
-        }
-        if (collision.collider.CompareTag("Enemy"))
-        {
-            _enemyRb.velocity = Vector3.zero;            
-            transform.position = new Vector3(transform.position.x + Random.Range(-1, 3), 0, transform.position.z + Random.Range(-1, 3));
-            LookAtPlayer();
+            _levelSystem.AddExperience(experienceGain);
         }
     }
 
-    public void ChangePositionAfterHitByMissile()
+    private void ChangePositionAfterHitByMissile()
     {
         float x = Random.Range(-2, 2);
         float y = Random.Range(-15, 15);
@@ -117,27 +137,9 @@ public class EnemyController : MonoBehaviour
         _enemyRb.AddForce(new Vector3(x, y, z), ForceMode.Impulse);
     }
 
-    IEnumerator IGenerateExplosionEffectOnHitByMissile()
+    private IEnumerator DestroyMyselfAfterSomeTime(float time)
     {
-        _iExplodeLight.range = 0;
-        _iExplodeLight.intensity = 0;
-        for (float i = 0; i < 2; i+=0.1f)
-        {
-            _iExplodeLight.range += i/2;
-            _iExplodeLight.intensity += i*5;
-            yield return new WaitForSeconds(0.001f);          
-        }
-        for (float i = 0; i < 2; i += 0.1f)
-        {
-            _iExplodeLight.range -= i/2;
-            _iExplodeLight.intensity -= i * 5;
-            yield return new WaitForSeconds(0.001f);
-        }
-    }
-
-    IEnumerator IDestroyMyselfAfterSomeTime()
-    {
-        yield return new WaitForSeconds(_floatingTime);
-        Destroy(gameObject);
+        yield return new WaitForSecondsRealtime(time);
+        manager.Remove(this);
     }
 }

@@ -1,51 +1,64 @@
 using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class MissileSpawner : MonoBehaviour
-{    
-    [SerializeField] private GameObject _missile;
-
-
-    private void Start()
+{
+    [SerializeField] private ObjectPool pool;
+    [SerializeField] private Rigidbody playerRb;
+    [SerializeField] private AudioClip shot;
+    
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private Button manualShotButton;
+    public int numberOfWeapons = 1;
+    public int numberOfSeries = 1;
+    
+    private void Awake()
     {
-        EventBroker.ShotAction += StartIShotCorutine;
+        manualShotButton.onClick.AddListener(ManualShoot);
     }
-    private void OnDisable()
+
+    private void OnDestroy()
     {
-        EventBroker.ShotAction -= StartIShotCorutine;
+        manualShotButton.onClick.RemoveListener(ManualShoot);
     }
 
-    public void SendMissile()
+
+    private void ManualShoot()
     {
-        for (int i = 0; i < GameManagerAsteroids.Instance.numberOfWeapons; i++)
+        PlayerMovementController.BackOnShot(playerRb, 5f);
+        manualShotButton.transform.DOShakeScale(0.2f, 0.1f, 1);
+        StartCoroutine(Shot(numberOfSeries, numberOfWeapons));
+    }
+
+    public void AutomaticShoot(int series, int weapons)
+    {
+        StartCoroutine(Shot(series, weapons));
+    }
+
+    private IEnumerator Shot(int series, int weapons)
+    {
+        audioSource.PlayOneShot(shot);
+        
+        for (var i = 0; i <= series; i++)
         {
-            Instantiate(_missile, CalculateSpawnPosition(), _missile.transform.rotation);
-        }
-    }
-
-    private Vector3 CalculateSpawnPosition()
-    {
-        float position =Random.Range(-0.5f, 0.5f);
-        Vector3 output = transform.position+new Vector3(position, 0,0);
-
-        return output;
-    }
-
-    private void StartIShotCorutine()
-    {
-        StartCoroutine(IShot());
-    }
-
-    IEnumerator IShot()
-    {
-        for (int i = 0; i <= GameManagerAsteroids.Instance.numberOfUpgrades; i++)
-        {
-            SendMissile();
-
+            for (var j = 0; j < weapons; j++)
+            {
+                var spawned = pool.SpawnObjectFromPool();
+                spawned.transform.position = CalculateSpawnPosition();
+            }
             yield return new WaitForSeconds(0.1f);
         }
     }
+    
+    private Vector3 CalculateSpawnPosition()
+    {
+        var position = Random.Range(-0.5f, 0.5f);
+        var output = transform.position + new Vector3(position, 0, 0);
 
-
+        return output;
+    }
+    
 }

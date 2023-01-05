@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public static class PlayerMovementController
@@ -56,25 +54,25 @@ public static class PlayerMovementController
 
     public static void LimitSpeedOfMovement(Rigidbody rigidbody)
     {
-        if (rigidbody.velocity.z > GameManagerAsteroids.Instance.maxPlayerVelocityY)
+        if (rigidbody.velocity.z > GameManager.Instance.maxPlayerVelocityY)
         {
             rigidbody.velocity = new Vector3(rigidbody.velocity.x, rigidbody.velocity.y,
-                GameManagerAsteroids.Instance.maxPlayerVelocityY);
+                GameManager.Instance.maxPlayerVelocityY);
         }
-        else if (rigidbody.velocity.z < -GameManagerAsteroids.Instance.maxPlayerVelocityY * 1.3f)
+        else if (rigidbody.velocity.z < -GameManager.Instance.maxPlayerVelocityY * 1.3f)
         {
             rigidbody.velocity = new Vector3(rigidbody.velocity.x, rigidbody.velocity.y,
-                -GameManagerAsteroids.Instance.maxPlayerVelocityY * 2);
+                -GameManager.Instance.maxPlayerVelocityY * 2);
         }
 
-        if (rigidbody.velocity.x > GameManagerAsteroids.Instance.maxPlayerVelocityY)
+        if (rigidbody.velocity.x > GameManager.Instance.maxPlayerVelocityY)
         {
-            rigidbody.velocity = new Vector3(GameManagerAsteroids.Instance.maxPlayerVelocityX, rigidbody.velocity.y,
+            rigidbody.velocity = new Vector3(GameManager.Instance.maxPlayerVelocityX, rigidbody.velocity.y,
                 rigidbody.velocity.z);
         }
-        else if (rigidbody.velocity.x < -GameManagerAsteroids.Instance.maxPlayerVelocityY)
+        else if (rigidbody.velocity.x < -GameManager.Instance.maxPlayerVelocityY)
         {
-            rigidbody.velocity = new Vector3(-GameManagerAsteroids.Instance.maxPlayerVelocityX, rigidbody.velocity.y,
+            rigidbody.velocity = new Vector3(-GameManager.Instance.maxPlayerVelocityX, rigidbody.velocity.y,
                 rigidbody.velocity.z);
         }
     }
@@ -87,26 +85,26 @@ public static class PlayerMovementController
         if (worldToVievportposition.x > 0.99)
         {
             rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(-Vector3.right * GameManagerAsteroids.Instance.borderForce, ForceMode.Impulse);
+            rigidbody.AddForce(-Vector3.right * GameManager.Instance.borderForce, ForceMode.Impulse);
         }
 
         if (worldToVievportposition.x < 0.01)
         {
             rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(Vector3.right * GameManagerAsteroids.Instance.borderForce, ForceMode.Impulse);
+            rigidbody.AddForce(Vector3.right * GameManager.Instance.borderForce, ForceMode.Impulse);
         }
 
 
-        if (rigidbody.transform.position.z > GameManagerAsteroids.Instance.borderZ)
+        if (rigidbody.transform.position.z > GameManager.Instance.borderZ)
         {
             rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(-Vector3.forward * GameManagerAsteroids.Instance.borderForce, ForceMode.Impulse);
+            rigidbody.AddForce(-Vector3.forward * GameManager.Instance.borderForce, ForceMode.Impulse);
         }
 
         if (rigidbody.transform.position.z < -worldToVievportposition.z)
         {
             rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(Vector3.forward * GameManagerAsteroids.Instance.borderForce, ForceMode.Impulse);
+            rigidbody.AddForce(Vector3.forward * GameManager.Instance.borderForce, ForceMode.Impulse);
         }
     }
 
