@@ -30,7 +30,7 @@ public class ObjectPool : MonoBehaviour
                 return pooled;
             }
         }
-        var obj = Instantiate(objectToPool);
+        var obj = Instantiate(objectToPool, transform);
         pooledObjects.Add(obj);
         return obj;
     }
