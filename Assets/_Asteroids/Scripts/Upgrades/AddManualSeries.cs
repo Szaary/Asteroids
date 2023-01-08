@@ -1,16 +1,16 @@
 ﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "Upgrade_AddManualSeries", menuName = "UpgradeData/AddManualSeries")]
-public class AddManualSeries : UpgradeData
+public class AddManualSeries : Upgrade
 {
-    public override bool CanShow(GameObject player)
+    protected override bool OnCanShow(GameObject target)
     {
         return true;
     }
 
-    public override void ApplyUpgrade(GameObject player)
+    protected override void OnApply(GameObject target)
     {
-        var spawner = player.GetComponentInChildren<MissileSpawner>();
+        var spawner = target.GetComponentInChildren<MissileSpawner>();
         spawner.enabled = true;
         spawner.numberOfSeries++;
     }

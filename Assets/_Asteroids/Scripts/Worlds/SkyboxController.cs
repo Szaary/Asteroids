@@ -8,10 +8,10 @@ public class SkyboxController : MonoBehaviour
 
     private void Awake()
     {
-        WaveManager.waveSpawned += OnWaveSpawned;
+        WaveManager.WaveSpawned += OnWaveSpawned;
     }
 
-    private void OnWaveSpawned(int obj)
+    private void OnWaveSpawned(int wave, int finalWave)
     {
         StartCoroutine(RotateSkybox(40));
     }
@@ -28,6 +28,6 @@ public class SkyboxController : MonoBehaviour
 
     private void OnDestroy()
     {
-        WaveManager.waveSpawned -= OnWaveSpawned;
+        WaveManager.WaveSpawned -= OnWaveSpawned;
     }
 }

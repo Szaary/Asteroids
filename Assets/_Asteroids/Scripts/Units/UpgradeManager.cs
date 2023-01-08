@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,13 +9,36 @@ public class UpgradeManager : MonoBehaviour
 {
     [SerializeField] private GameObject upgradeCamera;
     [SerializeField] private UiCards uiCards;
-    [SerializeField] private HUD hud;
-    public List<UpgradeData> allUpgrades;
-    public List<UpgradeData> appliedUpgrades;
+    [SerializeField] private string upgradeUiText;
+    
+    public Container container;
+    public List<MenuData> appliedUpgrades;
+    public List<MenuData> purchasedUpgrades;
 
     private void Awake()
     {
         LevelSystem.ExperienceChanged += OnExperienceChanged;
+        GameManager.GameStateChanged += OnGameStateChanged;
+    }
+
+    private void OnGameStateChanged(GameState state)
+    {
+        if (state == GameState.Mission)
+        {
+            appliedUpgrades.Clear();
+            StartCoroutine(ApplyPurchased());
+        }
+    }
+
+    private IEnumerator ApplyPurchased()
+    {
+        yield return null;
+        
+        foreach (var data in purchasedUpgrades)
+        {
+            data.Apply(gameObject);
+            appliedUpgrades.Add(data);
+        }
     }
 
     private void OnExperienceChanged(float arg1, float arg2, int arg3, bool leveled)
@@ -24,13 +49,9 @@ public class UpgradeManager : MonoBehaviour
         }
     }
 
-
-    public void GenerateUpgrades()
+    private void GenerateUpgrades()
     {
-        Debug.Log("Generating upgrades");
-        TimeManager.StopTime();
-        upgradeCamera.SetActive(true);
-        var possibleUpgrades = allUpgrades.Where(x => x.CanShow(gameObject)).ToList();
+        var possibleUpgrades = container.GetUpgrades().Where(x => x.CanShow(gameObject)).ToList();
 
         var cardsData = new List<UiCards.CardData>();
 
@@ -38,10 +59,8 @@ public class UpgradeManager : MonoBehaviour
         {
             foreach (var upgrade in possibleUpgrades)
             {
-                var data = GenerateCardData(upgrade);
-                cardsData.Add(data);
+                cardsData.Add(GenerateCardData(upgrade));
             }
-            uiCards.ShowButtons(cardsData);
         }
         else
         {
@@ -49,28 +68,38 @@ public class UpgradeManager : MonoBehaviour
             foreach (var number in numbers)
             {
                 var selectedUpgrade = possibleUpgrades[number];
-                var data = GenerateCardData(selectedUpgrade);
-                cardsData.Add(data);
+                cardsData.Add(GenerateCardData(selectedUpgrade));
             }
         }
 
-        uiCards.ShowButtons(cardsData);
-    }
-
-    private UiCards.CardData GenerateCardData(UpgradeData selectedUpgrade)
-    {
-        var data = new UiCards.CardData(
-            selectedUpgrade.upgradeText,
-            selectedUpgrade.description,
-            () =>
+        uiCards.ShowButtons(upgradeUiText, cardsData, () =>
             {
-                selectedUpgrade.ApplyUpgrade(gameObject);
+                TimeManager.StopTime();
+                upgradeCamera.SetActive(true);
+            }, () =>
+            {
                 TimeManager.ResumeTime();
                 upgradeCamera.SetActive(false);
-                appliedUpgrades.Add(selectedUpgrade);
             }
         );
-        return data;
+    }
+
+    private UiCards.CardData GenerateCardData(MenuData data)
+    {
+        var cardData = new UiCards.CardData(
+            data.GetTitle(),
+            data.GetDescription(),
+            data.GetCost(),
+            gameObject,
+            _ => data.CanShow(gameObject),
+            () =>
+            {
+                data.Apply(gameObject);
+                appliedUpgrades.Add(data);
+            },
+            data.LoopInMenu()
+        );
+        return cardData;
     }
 
     private static IEnumerable<int> GenerateDistinctRandomNumbers(int count, int min, int max)
@@ -91,5 +120,6 @@ public class UpgradeManager : MonoBehaviour
     private void OnDestroy()
     {
         LevelSystem.ExperienceChanged -= OnExperienceChanged;
+        GameManager.GameStateChanged -= OnGameStateChanged;
     }
 }

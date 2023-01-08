@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 public class PlayerHealth : Health
 {
@@ -16,6 +15,6 @@ public class PlayerHealth : Health
 
     protected override void OnDeath()
     {
-        Debug.Log("Killed");
+        GameManager.ChangeGameState(GameState.Defeat);
     }
 }

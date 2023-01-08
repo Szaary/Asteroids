@@ -6,11 +6,12 @@ public class MissileController : MonoBehaviour
     [SerializeField] private float startingForce;
     private Rigidbody missileRb;
     private GameObject player;
-
+    private Quaternion _defaultRotation;
     private void Awake()
     {
         missileRb = GetComponent<Rigidbody>();    
         player = GameObject.Find("Player");
+        _defaultRotation = transform.rotation;
     }
 
     private void Update()
@@ -40,5 +41,7 @@ public class MissileController : MonoBehaviour
     {
         missileRb.velocity=Vector3.zero;
         missileRb.angularVelocity = Vector3.zero;
+        
+        missileRb.rotation = _defaultRotation;
     }
 }

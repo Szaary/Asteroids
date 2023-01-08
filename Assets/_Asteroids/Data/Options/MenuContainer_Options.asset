@@ -9,8 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c42bfe833cf41c781ee770e8204ed75, type: 3}
-  m_Name: Upgrade_AddManualSeries
+  m_Script: {fileID: 11500000, guid: 64d5beeee4c340b0872893a63598841a, type: 3}
+  m_Name: MenuContainer_Options
   m_EditorClassIdentifier: 
-  upgradeText: Add manual serie of shots
-  description: Description
+  title: Options
+  description: Change game settings
+  loopInMenu: 0
+  container: {fileID: 11400000, guid: ca0c33a5de232f3478b72c2fbf75ebf5, type: 2}
+  menuName: Options

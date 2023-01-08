@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 374a1e1532254314928c88ce9638d969, type: 3}
+  m_Name: Menu_LastStand
+  m_EditorClassIdentifier: 
+  title: Last Stand
+  description: A survival mission where you must hold out against increasingly difficult
+    waves of enemies.
+  loopInMenu: 0
+  resource: {fileID: 11400000, guid: 671e60c2441284c49b05d342c9df5b48, type: 2}
+  unlockCost: 0
+  uiDescription: Time Left
+  reward: 120
+  missionTimeInSeconds: 15

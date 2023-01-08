@@ -11,9 +11,22 @@ public class LevelSystem : MonoBehaviour
 
     private void Awake()
     {
-        level = 0;
-        experience = 0;
-        experienceToNextLevel = 20;
+        GameManager.GameStateChanged += OnGameStateChanged;
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.GameStateChanged -= OnGameStateChanged;
+    }
+
+    private void OnGameStateChanged(GameState state)
+    {
+        if (state == GameState.Mission)
+        {
+            level = 0;
+            experience = 0;
+            experienceToNextLevel = 20;
+        }
     }
 
     public void AddExperience(int amount)

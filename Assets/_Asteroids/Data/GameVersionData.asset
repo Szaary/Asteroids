@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73429353145f49419aa232766cd61f35, type: 3}
-  m_Name: Upgrade_AddAutoWeapon
+  m_Script: {fileID: 11500000, guid: 18777955089d559428b6b05fa9c065d7, type: 3}
+  m_Name: GameVersionData
   m_EditorClassIdentifier: 
-  upgradeText: Add automatic weapon
-  description: Description
+  projectStatus: 0
+  projectPhase: 1
+  buildName: 

@@ -27,12 +27,17 @@ public class EnemyController : MonoBehaviour
 
     private Rigidbody _enemyRb;
     private GameObject _player;
+    public WaveManager waveManager { get; set; }
 
     private void Awake()
     {
-        _player = GameObject.Find("Player");
         _enemyRb = GetComponent<Rigidbody>();
         _audioSource = GetComponent<AudioSource>();
+    }
+
+    private void Start()
+    {
+        _player = waveManager.Player;
     }
 
     private void OnEnable()

@@ -5,7 +5,7 @@ using UnityEngine;
 public class ObstacleSpawnManager : MonoBehaviour
 {
     [SerializeField] private ObjectPool pool;
-    [SerializeField] private float wait = 0.1f;
+    [SerializeField] private float asteroidFrequency = 0.1f;
 
     private void Start()
     {
@@ -16,7 +16,7 @@ public class ObstacleSpawnManager : MonoBehaviour
     {
         while (true)
         {
-            wait = Random.Range(0.005f, GameManager.Instance.asteroidFrequency);
+            var wait = Random.Range(0.005f, asteroidFrequency);
             yield return new WaitForSeconds(wait);
             
             var pooledObject = pool.SpawnObjectFromPool();

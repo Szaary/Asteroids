@@ -1,46 +1,58 @@
-using System.Collections;
+using System;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public enum GameState
 {
-    private static GameManager _instance;
+    Startup,
+    Menu,
+    Mission,
+    Victory,
+    Defeat
+}
 
-    public static GameManager Instance
+public class GameManager : Singleton<GameManager>
+{
+    public static event Action<GameState> GameStateChanged;
+    public static Action<float> TimerTicked;
+    
+    public static GameState State { get; private set; }
+    public static void ChangeGameState(GameState state)
     {
-        get
-        {
-            if (_instance == null)
-            {
-                GameObject go = new GameObject("GameManagerAsteroids");
-                go.AddComponent<GameManager>();
-            }
+        if (state == State) return;
+        State = state;
 
-            return _instance;
+        if (state == GameState.Mission)
+        {
+             SystemsFacade.Instance.player.SetActive(true);
         }
+        GameStateChanged?.Invoke(State);
     }
 
+
+    
     public float borderX { get; set; }
     public float borderY { get; set; }
     public float borderZ { get; set; }
     public float borderForce { get; set; }
-    public float asteroidFrequency { get; set; }
-    [Range(0, 50)] public float maxPlayerVelocityY;
-    [Range(0, 50)] public float maxPlayerVelocityX;
-    public float enemySpawnFrequency { get; set; }
-
-
-    private void Awake()
+    private Action _missionTimer;
+    
+    protected override void Awake()
     {
-        _instance = this;
-
+        base.Awake();
+        
         borderX = 40;
         borderY = 40;
         borderZ = 120;
         borderForce = 1;
-        asteroidFrequency = 0.1f;
-        maxPlayerVelocityY = 20;
-        maxPlayerVelocityX = 20;
-        enemySpawnFrequency = 1;
         
     }
+
+    private void Start()
+    {
+        ChangeGameState(GameState.Menu);
+    }
+
+    public void CreateTimer(Action timer) => _missionTimer = timer;
+    public void RemoveTimer() => _missionTimer = null;
+    private void Update() => _missionTimer?.Invoke();
 }

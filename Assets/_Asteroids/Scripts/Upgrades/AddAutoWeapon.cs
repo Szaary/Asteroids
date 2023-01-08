@@ -1,17 +1,16 @@
 ﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "Upgrade_AddAutoWeapon", menuName = "UpgradeData/AddAutoWeapon")]
-public class AddAutoWeapon : UpgradeData
+public class AddAutoWeapon : Upgrade
 {
-    public override bool CanShow(GameObject player)
+    protected override bool OnCanShow(GameObject target)
     {
-        return true;
+        return target.GetComponentInChildren<AutoFire>().enabled;
     }
 
-    public override void ApplyUpgrade(GameObject player)
+    protected override void OnApply(GameObject target)
     {
-        var autoFire = player.GetComponentInChildren<AutoFire>();
-        autoFire.enabled = true;
+        var autoFire = target.GetComponentInChildren<AutoFire>();
         autoFire.numberOfWeapons++;
     }
 }

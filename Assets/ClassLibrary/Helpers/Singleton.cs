@@ -1,44 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Singleton<T> : MonoBehaviour where T : Singleton<T>
 {
-    private static T _instance;
-    public static T Instance
-    {
-        get
-        {
-            return _instance;
-        }
-    }
-
-    public static bool IsInitialized
-    {
-        get
-        {
-            return _instance != null;
-        }
-    }
+    public static T Instance { get; private set; }
+    public static bool IsInitialized => Instance != null;
 
     protected virtual void Awake()
     {
-        if (_instance != null)
+        if (Instance != null)
         {
-            Debug.LogError("[Singleton] Trying to instantiate a second instance of a singleton class: " + _instance.name);
+            Debug.LogError("[Singleton] Trying to instantiate a second instance of a singleton class: " + Instance.name);
         }
         else
-        {
-            _instance = (T)this;
-        }
+            Instance = (T) this;
     }
 
     protected virtual void OnDestroy()
     {
-        if (_instance == this)
+        if (Instance == this)
         {
-            _instance = null;
+            Instance = null;
         }
     }
-
 }

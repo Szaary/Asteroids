@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -5,10 +6,11 @@ using UnityEngine.UI;
 
 public class HUD : MonoBehaviour
 {
-    [Header("HUD references")] [SerializeField]
-    private TextMeshProUGUI enemiesKilled;
+    [SerializeField] private Transform objectivesParent;
+    [SerializeField] private Objective objectivePrefab;
 
-    [SerializeField] private TextMeshProUGUI wave;
+    [Header("HUD references")] [SerializeField]
+    private List<Objective> objectives;
 
     [SerializeField] private Image joystick;
     [SerializeField] private Image fire;
@@ -24,12 +26,7 @@ public class HUD : MonoBehaviour
 
     private void Awake()
     {
-        experienceBar.fillAmount = 0;
-        healthBar.fillAmount = 1;
-        autoFireCooldown.fillAmount = 0f;
-
-        WaveManager.enemyKilled += OnEnemyKilled;
-        WaveManager.waveSpawned += OnWaveChanged;
+        GameManager.GameStateChanged += OnGameStateChanged;
 
         PlayerHealth.HealthChanged += OnHealthChanged;
         LevelSystem.ExperienceChanged += OnExperienceChanged;
@@ -38,6 +35,47 @@ public class HUD : MonoBehaviour
 
         AutoFire.CounterChanged += OnAutoFireChanged;
         AutoFire.StatusChanged += OnAutoFireStatusChanged;
+    }
+
+
+    private void OnGameStateChanged(GameState gameState)
+    {
+        if (gameState is GameState.Mission)
+        {
+            SetupBasicMission();
+        }
+        else
+        {
+            HideHud();
+            RemoveObjectives();
+        }
+    }
+
+    public Objective CreateObjective()
+    {
+        var objective = Instantiate(objectivePrefab, objectivesParent);
+        objectives.Add(objective);
+        return objective;
+    }
+
+
+    private void RemoveObjectives()
+    {
+        for (var index = objectives.Count - 1; index >= 0; index--)
+        {
+            var objective = objectives[index];
+            Destroy(objective.gameObject);
+        }
+
+        objectives.Clear();
+    }
+
+    private void SetupBasicMission()
+    {
+        experienceBar.fillAmount = 0;
+        healthBar.fillAmount = 1;
+        autoFireCooldown.fillAmount = 0f;
+        ShowHud();
     }
 
     private void OnAutoFireStatusChanged(bool isEnabled)
@@ -59,25 +97,13 @@ public class HUD : MonoBehaviour
             ShowHud();
     }
 
-    private void HideHud()
-    {
-        enemiesKilled.gameObject.SetActive(false);
-        wave.gameObject.SetActive(false);
-
-        joystick.gameObject.SetActive(false);
-        fire.gameObject.SetActive(false);
-
-        healthBar.gameObject.SetActive(false);
-
-        experienceBar.gameObject.SetActive(false);
-        level.gameObject.SetActive(false);
-        autoFireBorder.gameObject.SetActive(false);
-    }
-
+    
     private void ShowHud()
     {
-        enemiesKilled.gameObject.SetActive(true);
-        wave.gameObject.SetActive(true);
+        foreach (var objective in objectives)
+        {
+            objective.SetActive(true);
+        }
 
         joystick.gameObject.SetActive(true);
         fire.gameObject.SetActive(true);
@@ -89,8 +115,25 @@ public class HUD : MonoBehaviour
         autoFireBorder.gameObject.SetActive(true);
     }
 
-    private void OnWaveChanged(int value) => wave.text = "Wave: " + value;
-    private void OnEnemyKilled(int value) => enemiesKilled.text = "Enemies Killed: " + value;
+    
+    private void HideHud()
+    {
+        foreach (var objective in objectives)
+        {
+            objective.SetActive(false);
+        }
+
+        joystick.gameObject.SetActive(false);
+        fire.gameObject.SetActive(false);
+
+        healthBar.gameObject.SetActive(false);
+
+        experienceBar.gameObject.SetActive(false);
+        level.gameObject.SetActive(false);
+        autoFireBorder.gameObject.SetActive(false);
+    }
+
+  
 
     private void OnExperienceChanged(float before, float after, int currentLevel, bool leveled)
     {
@@ -118,14 +161,14 @@ public class HUD : MonoBehaviour
         void SetBar(float percentage) => healthBar.fillAmount = percentage;
     }
 
+
     private void OnDestroy()
     {
-        WaveManager.enemyKilled -= OnEnemyKilled;
-        WaveManager.waveSpawned -= OnWaveChanged;
         PlayerHealth.HealthChanged -= OnHealthChanged;
         LevelSystem.ExperienceChanged -= OnExperienceChanged;
         UiCards.CardsEnabled -= OnCardsEnabled;
         AutoFire.CounterChanged -= OnAutoFireChanged;
         AutoFire.StatusChanged -= OnAutoFireStatusChanged;
+        GameManager.GameStateChanged -= OnGameStateChanged;
     }
 }

@@ -15,6 +15,27 @@ public class AutoFire : MonoBehaviour
 
     private float cooldownTimer;
 
+    private void Awake()
+    {
+        GameManager.GameStateChanged += OnGameStateChanged;
+    }
+
+    private void OnGameStateChanged(GameState state)
+    {
+        if (state == GameState.Mission)
+        {
+            numberOfSeries = 1;
+            numberOfWeapons = 0;
+            cooldownTime = 5;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.GameStateChanged -= OnGameStateChanged;
+    }
+
+
     private void OnEnable()
     {
         StatusChanged?.Invoke(true);
