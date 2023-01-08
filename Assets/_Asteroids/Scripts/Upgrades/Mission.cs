@@ -43,8 +43,6 @@ public abstract class Mission : MenuData
         
         void UpdateCounter(int value, int endValue = 0)
         {
-            if (GameManager.State == GameState.Mission) return;
-            
             var text = endValue == 0 ? $"{uiDescription}: {value}" : $"{uiDescription}: {value} / {endValue}";
             set(text);
             onCounter?.Invoke(value, endValue);

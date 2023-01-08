@@ -16,14 +16,14 @@ public class ResourceData
     public ResourceData(ResourceUI uiReference, int initialAmount, string name)
     {
         ui = uiReference;
-        amount = initialAmount;
+        Value = initialAmount;
         ui.SetTitle(name);
     }
 
     public bool Enable
     {
-        get => ui.enabled;
-        set => ui.enabled = value;
+        get => ui.gameObject.activeInHierarchy;
+        set => ui.gameObject.SetActive(value);
     }
 
     public int Value

@@ -66,39 +66,35 @@ public class PlayerMovementController
     {
         if (rigidbody.velocity.z > _maxPlayerVelocityY)
         {
-            rigidbody.velocity = new Vector3(rigidbody.velocity.x, rigidbody.velocity.y,
-                _maxPlayerVelocityY);
+            rigidbody.velocity = new Vector3(rigidbody.velocity.x, rigidbody.velocity.y, _maxPlayerVelocityY);
         }
         else if (rigidbody.velocity.z < -_maxPlayerVelocityY * 1.3f)
         {
-            rigidbody.velocity = new Vector3(rigidbody.velocity.x, rigidbody.velocity.y,
-                -_maxPlayerVelocityY * 2);
+            rigidbody.velocity = new Vector3(rigidbody.velocity.x, rigidbody.velocity.y, -_maxPlayerVelocityY * 2);
         }
 
         if (rigidbody.velocity.x > _maxPlayerVelocityY)
         {
-            rigidbody.velocity = new Vector3(_maxPlayerVelocityX, rigidbody.velocity.y,
-                rigidbody.velocity.z);
+            rigidbody.velocity = new Vector3(_maxPlayerVelocityX, rigidbody.velocity.y, rigidbody.velocity.z);
         }
         else if (rigidbody.velocity.x < -_maxPlayerVelocityY)
         {
-            rigidbody.velocity = new Vector3(-_maxPlayerVelocityX, rigidbody.velocity.y,
-                rigidbody.velocity.z);
+            rigidbody.velocity = new Vector3(-_maxPlayerVelocityX, rigidbody.velocity.y, rigidbody.velocity.z);
         }
     }
 
-    public static void StopOutOfBounds(Transform transform, Rigidbody rigidbody)
+    public static void StopOutOfBounds(Transform transform, Rigidbody rigidbody, float torque)
     {
-        var worldToVievportposition = Camera.main.WorldToViewportPoint(transform.position);
-        worldToVievportposition.x = Mathf.Clamp01(worldToVievportposition.x);
+        var worldToViewPortPosition = Camera.main.WorldToViewportPoint(transform.position);
+        worldToViewPortPosition.x = Mathf.Clamp01(worldToViewPortPosition.x);
 
-        if (worldToVievportposition.x > 0.99)
+        if (worldToViewPortPosition.x > 0.99)
         {
             rigidbody.velocity = Vector3.zero;
             rigidbody.AddForce(-Vector3.right * GameManager.Instance.borderForce, ForceMode.Impulse);
         }
 
-        if (worldToVievportposition.x < 0.01)
+        if (worldToViewPortPosition.x < 0.01)
         {
             rigidbody.velocity = Vector3.zero;
             rigidbody.AddForce(Vector3.right * GameManager.Instance.borderForce, ForceMode.Impulse);
@@ -111,7 +107,7 @@ public class PlayerMovementController
             rigidbody.AddForce(-Vector3.forward * GameManager.Instance.borderForce, ForceMode.Impulse);
         }
 
-        if (rigidbody.transform.position.z < -worldToVievportposition.z)
+        if (rigidbody.transform.position.z < -worldToViewPortPosition.z)
         {
             rigidbody.velocity = Vector3.zero;
             rigidbody.AddForce(Vector3.forward * GameManager.Instance.borderForce, ForceMode.Impulse);

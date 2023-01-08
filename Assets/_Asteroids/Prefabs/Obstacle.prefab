@@ -127,6 +127,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a3d4804d50de4b409d3a6f8377578c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  combatForce: 200
-  endFightForce: 600
-  menuForce: 50
+  combatForce: 150
+  endFightForce: 50
+  menuForce: 300

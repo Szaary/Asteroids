@@ -42,6 +42,10 @@ public class EnemyController : MonoBehaviour
 
     private void OnEnable()
     {
+        _enemyRb.velocity = Vector3.zero;
+        _enemyRb.angularVelocity = Vector3.zero;
+        _enemyRb.rotation= Quaternion.identity;
+        
         _enemyRb.AddForce(Vector3.back * _trust, ForceMode.Impulse);
         state = State.Spawned;
     }
@@ -61,6 +65,7 @@ public class EnemyController : MonoBehaviour
                     StartCoroutine(SetTimerOnChase());
                     state = State.InPosition;
                 }
+
                 break;
             }
             case State.InPosition:
@@ -75,6 +80,7 @@ public class EnemyController : MonoBehaviour
                     state = State.Dead;
                     health.Destroy();
                 }
+
                 break;
             case State.Dead:
                 break;
@@ -82,20 +88,21 @@ public class EnemyController : MonoBehaviour
                 throw new ArgumentOutOfRangeException();
         }
     }
+
     private IEnumerator SetTimerOnChase()
     {
         yield return new WaitForSeconds(enemyStopTime);
         _audioSource.PlayOneShot(_startBoost);
         state = State.Chasing;
     }
-    
+
     private Vector3 GenerateEnemyTargetLocation()
     {
         var lookDirection = (_player.transform.position - transform.position).normalized;
         lookDirection.x += Random.Range(-0.5f, 0.5f);
         return lookDirection;
     }
-    
+
     private void OnDisable()
     {
         StopAllCoroutines();

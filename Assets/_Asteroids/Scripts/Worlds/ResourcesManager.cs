@@ -46,10 +46,7 @@ public class ResourcesManager : MonoBehaviour
     }
 
 
-    private void OnDestroy()
-    {
-        GameManager.GameStateChanged += OnGameStateChanged;
-    }
+
 
     private void OnGameStateChanged(GameState state)
     {
@@ -57,5 +54,10 @@ public class ResourcesManager : MonoBehaviour
         {
             resource.Value.Enable = state == GameState.Menu;
         }
+    }
+    
+    private void OnDestroy()
+    {
+        GameManager.GameStateChanged += OnGameStateChanged;
     }
 }

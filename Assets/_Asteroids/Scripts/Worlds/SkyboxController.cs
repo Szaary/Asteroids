@@ -1,29 +1,25 @@
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 
 public class SkyboxController : MonoBehaviour
 {
     private static readonly int Rotation = Shader.PropertyToID("_Rotation");
-    [SerializeField] private float cameraRotation;
+    private float cameraRotation;
 
     private void Awake()
     {
+        cameraRotation = RenderSettings.skybox.GetFloat(Rotation);
         WaveManager.WaveSpawned += OnWaveSpawned;
     }
 
     private void OnWaveSpawned(int wave, int finalWave)
     {
-        StartCoroutine(RotateSkybox(40));
-    }
-
-    private IEnumerator RotateSkybox(int rotation)
-    {
-        for (int i = 0; i < rotation; i++)
+        var random = Random.Range(-10, 10);
+        DOVirtual.Float(cameraRotation, cameraRotation + random, 1, value =>
         {
-            yield return new WaitForSecondsRealtime(0.06f);
-            RenderSettings.skybox.SetFloat(Rotation, cameraRotation);
-            cameraRotation += 0.1f;
-        }
+            RenderSettings.skybox.SetFloat(Rotation, value);
+        });
     }
 
     private void OnDestroy()

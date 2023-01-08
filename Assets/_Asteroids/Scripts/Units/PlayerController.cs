@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -12,16 +13,41 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxPlayerVelocityX = 20;
     [SerializeField] private float maxPlayerVelocityY = 20;
 
-
     private float _horizontalInput;
     private float _verticalInput;
-
+    
     private PlayerMovementController _movement;
 
     private void Awake()
     {
         _playerRb = GetComponent<Rigidbody>();
         _movement = new PlayerMovementController(maxPlayerVelocityX, maxPlayerVelocityY);
+
+        GameManager.GameStateChanged += OnGameStateChanged;
+        UiCards.CardsEnabled += OnCardsEnabled;
+    }
+
+    private void OnCardsEnabled(bool obj)
+    {
+        _playerRb.velocity /= 3;
+        _playerRb.angularVelocity /= 3;
+    }
+
+
+    private void OnGameStateChanged(GameState state)
+    {
+        if (state is GameState.Victory or GameState.Defeat)
+        {
+            _playerRb.velocity = Vector3.zero;
+            _playerRb.angularVelocity = Vector3.zero;
+
+            transform.DOMove(Vector3.zero, 1).SetUpdate(true).onComplete = () =>
+            {
+                _playerRb.velocity = Vector3.zero;
+                _playerRb.angularVelocity = Vector3.zero;
+                transform.rotation= Quaternion.identity;
+            };
+        }
     }
 
     private void Start()
@@ -41,8 +67,14 @@ public class PlayerController : MonoBehaviour
         _verticalInput = _movement.VerticalInputController
             (joystick.Vertical, _verticalInput, _playerRb, trust);
 
-        PlayerMovementController.StopOutOfBounds(transform, _playerRb);
+        PlayerMovementController.StopOutOfBounds(transform, _playerRb, torque);
         _movement.RotateOnMovement(transform, _horizontalInput, torque);
         _movement.LimitSpeedOfMovement(_playerRb);
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.GameStateChanged -= OnGameStateChanged;
+        UiCards.CardsEnabled -= OnCardsEnabled;
     }
 }

@@ -9,7 +9,7 @@ public class UiCards : Singleton<UiCards>
 {
     [SerializeField] private float uiShowTime = 0.3f;
     [SerializeField] private float uiHideTime = 0.3f;
-
+    [SerializeField] private ObjectPool pool;
     public static event Action<bool> CardsEnabled;
     [SerializeField] private TextMeshProUGUI titleReference;
     [SerializeField] private List<Card> cards;
@@ -40,7 +40,7 @@ public class UiCards : Singleton<UiCards>
             {
                 if (i >= cards.Count)
                 {
-                    break;
+                    cards.Add(pool.SpawnObjectFromPool().GetComponent<Card>());
                 }
 
                 if (!cardsData[i].CanUse(cardsData[i].Target)) return;
@@ -58,11 +58,6 @@ public class UiCards : Singleton<UiCards>
 
     private void ShowButton(Card card, CardData data, Action onHide)
     {
-        card.button.onClick.AddListener(delegate
-        {
-            data.Apply.Invoke();
-            HideButtons(onHide, data.LoopInMenu);
-        });
         card.nameKey.text = data.Name;
         card.description.text = data.Description;
 
@@ -81,6 +76,12 @@ public class UiCards : Singleton<UiCards>
         card.transform.localScale = Vector3.zero;
         card.transform.DOScale(Vector3.one, uiShowTime).SetUpdate(true).onComplete =
             () => card.button.enabled = true;
+        
+        card.button.onClick.AddListener(delegate
+        {
+            data.Apply.Invoke();
+            HideButtons(onHide, data.LoopInMenu);
+        });
     }
 
     private void HideButtons(Action onHide, bool dataLoopInMenu)
