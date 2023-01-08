@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Joystick joystick;
+    [SerializeField] private Camera mainCamera;
+    
     private Rigidbody _playerRb;
 
     [SerializeField] private float trust;
@@ -12,7 +14,9 @@ public class PlayerController : MonoBehaviour
     
     [SerializeField] private float maxPlayerVelocityX = 20;
     [SerializeField] private float maxPlayerVelocityY = 20;
+    [SerializeField] private float borderForce = 1;
 
+    
     private float _horizontalInput;
     private float _verticalInput;
     
@@ -21,7 +25,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         _playerRb = GetComponent<Rigidbody>();
-        _movement = new PlayerMovementController(maxPlayerVelocityX, maxPlayerVelocityY);
+        _movement = new PlayerMovementController(maxPlayerVelocityX, maxPlayerVelocityY, borderForce);
 
         GameManager.GameStateChanged += OnGameStateChanged;
         UiCards.CardsEnabled += OnCardsEnabled;
@@ -67,7 +71,7 @@ public class PlayerController : MonoBehaviour
         _verticalInput = _movement.VerticalInputController
             (joystick.Vertical, _verticalInput, _playerRb, trust);
 
-        PlayerMovementController.StopOutOfBounds(transform, _playerRb, torque);
+        _movement.StopOutOfBounds(transform, _playerRb, mainCamera);
         _movement.RotateOnMovement(transform, _horizontalInput, torque);
         _movement.LimitSpeedOfMovement(_playerRb);
     }

@@ -33,8 +33,7 @@ public class MissileController : MonoBehaviour
 
     private void OnEnable()
     {
-        missileRb.AddForce(new Vector3(-2f * player.transform.rotation.z ,0,1) 
-                           * startingForce, ForceMode.Impulse);
+        missileRb.AddForce(new Vector3(-1.5f * player.transform.rotation.z ,0,1) * startingForce, ForceMode.Impulse);
     }
 
     private void OnDisable()

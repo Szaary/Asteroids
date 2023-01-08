@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,34 +9,52 @@ public class UpgradeManager : MonoBehaviour
     [SerializeField] private GameObject upgradeCamera;
     [SerializeField] private UiCards uiCards;
     [SerializeField] private string upgradeUiText;
-    
+
     public Container container;
     public List<MenuData> appliedUpgrades;
-    public List<MenuData> purchasedUpgrades;
+    [SerializeField] private List<MenuData> purchasedUpgrades;
 
     private void Awake()
     {
         LevelSystem.ExperienceChanged += OnExperienceChanged;
         GameManager.GameStateChanged += OnGameStateChanged;
+        Saver.LoadPurchased(purchasedUpgrades);
     }
+
 
     private void OnGameStateChanged(GameState state)
     {
-        if (state == GameState.Mission)
+        if (state == GameState.Menu)
         {
             appliedUpgrades.Clear();
+        }
+
+        if (state == GameState.Mission)
+        {
             StartCoroutine(ApplyPurchased());
         }
+    }
+
+    public bool Unlocked(MenuData menuData) => purchasedUpgrades.Contains(menuData);
+
+    public void Unlock(MenuData menuData)
+    {
+        Debug.Log("Unlocking and saving asset");
+        purchasedUpgrades.Add(menuData);
+        Saver.SavePurchased(purchasedUpgrades);
     }
 
     private IEnumerator ApplyPurchased()
     {
         yield return null;
-        
+
         foreach (var data in purchasedUpgrades)
         {
-            data.Apply(gameObject);
-            appliedUpgrades.Add(data);
+            if (data is Upgrade upgrade)
+            {
+                upgrade.Apply(gameObject);
+                appliedUpgrades.Add(data);
+            }
         }
     }
 
@@ -92,6 +109,7 @@ public class UpgradeManager : MonoBehaviour
             data.GetCost(),
             gameObject,
             _ => data.CanShow(gameObject),
+            data.CanApply,
             () =>
             {
                 data.Apply(gameObject);

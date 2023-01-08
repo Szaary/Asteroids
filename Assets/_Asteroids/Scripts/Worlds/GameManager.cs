@@ -14,8 +14,9 @@ public class GameManager : Singleton<GameManager>
 {
     public static event Action<GameState> GameStateChanged;
     public static Action<float> TimerTicked;
-    
+
     public static GameState State { get; private set; }
+
     public static void ChangeGameState(GameState state)
     {
         if (state == State) return;
@@ -23,28 +24,26 @@ public class GameManager : Singleton<GameManager>
 
         if (state == GameState.Mission)
         {
-             SystemsFacade.Instance.player.SetActive(true);
+            SystemsFacade.Instance.player.SetActive(true);
         }
+
         GameStateChanged?.Invoke(State);
     }
 
 
-    
     public float borderX { get; set; }
     public float borderY { get; set; }
     public float borderZ { get; set; }
-    public float borderForce { get; set; }
+
     private Action _missionTimer;
-    
+
     protected override void Awake()
     {
         base.Awake();
-        
+
         borderX = 40;
         borderY = 40;
         borderZ = 120;
-        borderForce = 1;
-        
     }
 
     private void Start()

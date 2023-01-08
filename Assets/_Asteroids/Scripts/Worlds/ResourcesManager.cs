@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class ResourcesManager : MonoBehaviour
+public class ResourcesManager : Singleton<ResourcesManager>
 {
     [SerializeField] private ResourceUI resourcePrefab;
     [SerializeField] private List<Resource> resources;
 
     private Dictionary<Resource, ResourceData> _resourceData;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         _resourceData = new Dictionary<Resource, ResourceData>();
 
         foreach (var resource in resources)
@@ -21,7 +22,8 @@ public class ResourcesManager : MonoBehaviour
                 resource.resourceName
             ));
         }
-
+        
+        Saver.LoadResources(_resourceData);
         GameManager.GameStateChanged += OnGameStateChanged;
     }
 
@@ -30,18 +32,21 @@ public class ResourcesManager : MonoBehaviour
 
     public bool TryBuy(Resource resource, int cost)
     {
+        if (cost == 0) return true;
         if (_resourceData[resource].Value >= cost)
         {
             _resourceData[resource].Value -= cost;
+            
+            Saver.SaveResources(_resourceData);
             return true;
         }
-
         return false;
     }
 
     public bool Increase(Resource resource, int value)
     {
         _resourceData[resource].Value += value;
+        Saver.SaveResources(_resourceData);
         return true;
     }
 
@@ -56,8 +61,9 @@ public class ResourcesManager : MonoBehaviour
         }
     }
     
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
         GameManager.GameStateChanged += OnGameStateChanged;
     }
 }

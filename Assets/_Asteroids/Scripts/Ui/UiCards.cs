@@ -43,7 +43,7 @@ public class UiCards : Singleton<UiCards>
                     cards.Add(pool.SpawnObjectFromPool().GetComponent<Card>());
                 }
 
-                if (!cardsData[i].CanUse(cardsData[i].Target)) return;
+                if (!cardsData[i].CanShow(cardsData[i].Target)) return;
                 ShowButton(cards[i], cardsData[i], onHide);
             }
 
@@ -69,18 +69,25 @@ public class UiCards : Singleton<UiCards>
         }
         else
         {
-           card.SetActiveCost(false);
+            card.SetActiveCost(false);
         }
 
         card.button.gameObject.SetActive(true);
         card.transform.localScale = Vector3.zero;
         card.transform.DOScale(Vector3.one, uiShowTime).SetUpdate(true).onComplete =
             () => card.button.enabled = true;
-        
+
         card.button.onClick.AddListener(delegate
         {
-            data.Apply.Invoke();
-            HideButtons(onHide, data.LoopInMenu);
+            if (data.CanApply())
+            {
+                data.Apply.Invoke();
+                HideButtons(onHide, data.LoopInMenu);
+            }
+            else
+            {
+                Debug.Log("Requirements not meet");
+            }
         });
     }
 
@@ -138,7 +145,6 @@ public class UiCards : Singleton<UiCards>
         {
             cardsData.Add(GenerateCardData(menuData, gameObject));
         }
-
         Instance.ShowButtons(title, cardsData);
     }
 
@@ -150,6 +156,7 @@ public class UiCards : Singleton<UiCards>
             data.GetCost(),
             gameObject,
             _ => data.CanShow(gameObject),
+            data.CanApply,
             () => { data.Apply(gameObject); },
             data.LoopInMenu()
         );
@@ -162,19 +169,24 @@ public class UiCards : Singleton<UiCards>
         public readonly string Name;
         public readonly string Description;
         public readonly GameObject Target;
+        public readonly Func<GameObject, bool> CanShow;
+        public readonly Func<bool> CanApply;
         public readonly Action Apply;
-        public readonly Func<GameObject, bool> CanUse;
         public readonly bool LoopInMenu;
 
-        public CardData(string name, string description,  (Resource, int) cost,GameObject target,
-            Func<GameObject, bool> canUse, Action apply, bool loopInMenu)
+        public CardData(string name, string description, (Resource, int) cost, GameObject target,
+            Func<GameObject, bool> canShow,
+            Func<bool> canApply,
+            Action apply,
+            bool loopInMenu)
         {
             Name = name;
             Description = description;
             Cost = cost;
-            CanUse = canUse;
+            CanShow = canShow;
             Apply = apply;
             LoopInMenu = loopInMenu;
+            CanApply = canApply;
             Target = target;
         }
     }

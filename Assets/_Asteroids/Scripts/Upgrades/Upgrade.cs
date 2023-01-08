@@ -6,7 +6,7 @@ public abstract class Upgrade : MenuData
 
     public override (Resource, int) GetCost()
     {
-        return (resource, unlockCost);
+        return GameManager.State == GameState.Menu ? (resource, unlockCost) : (resource, 0);
     }
 
     public override bool CanShow(GameObject target)
@@ -19,7 +19,12 @@ public abstract class Upgrade : MenuData
         var upgradeManager = target.GetComponentInChildren<UpgradeManager>();
         return canBePermanentlyPurchased
                && OnCanShow(target)
-               && !upgradeManager.purchasedUpgrades.Contains(this);
+               && !upgradeManager.Unlocked(this);
+    }
+
+    public override bool CanApply()
+    {
+        return GameManager.State != GameState.Menu || ResourcesManager.Instance.TryBuy(resource, unlockCost);
     }
 
     public override void Apply(GameObject target)
@@ -31,7 +36,7 @@ public abstract class Upgrade : MenuData
         else
         {
             var upgradeManager = target.GetComponentInChildren<UpgradeManager>();
-            upgradeManager.purchasedUpgrades.Add(this);
+            upgradeManager.Unlock(this);
         }
     }
 

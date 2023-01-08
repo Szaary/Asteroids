@@ -15,5 +15,7 @@ MonoBehaviour:
   title: Turn Off Music
   description: No more Beats
   loopInMenu: 1
+  resource: {fileID: 11400000, guid: 671e60c2441284c49b05d342c9df5b48, type: 2}
+  unlockCost: 0
   turnOn: Turn On Music
   turnOnDescription: Let's dance

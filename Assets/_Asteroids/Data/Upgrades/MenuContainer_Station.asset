@@ -15,5 +15,7 @@ MonoBehaviour:
   title: Station
   description: Unlock permament upgrades
   loopInMenu: 0
+  resource: {fileID: 11400000, guid: 671e60c2441284c49b05d342c9df5b48, type: 2}
+  unlockCost: 0
   container: {fileID: 11400000, guid: 7a01ecd7cf2c6914c8eaa839006db43e, type: 2}
   menuName: Upgrade Station

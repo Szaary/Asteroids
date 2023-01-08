@@ -4,16 +4,17 @@ public class PlayerMovementController
 {
     private readonly float _maxPlayerVelocityX;
     private readonly float _maxPlayerVelocityY;
+    private readonly float _borderForce;
 
-
-    public PlayerMovementController(float maxPlayerVelocityX, float maxPlayerVelocityY)
+    public PlayerMovementController(float maxPlayerVelocityX, float maxPlayerVelocityY, float borderForce)
     {
         _maxPlayerVelocityX = maxPlayerVelocityX;
         _maxPlayerVelocityY = maxPlayerVelocityY;
+        _borderForce = borderForce;
     }
 
-    public float HorizontalInputController(float joystickHorizontal, float horizontalInput, Rigidbody rigidbody,
-        float trust)
+    public float HorizontalInputController(float joystickHorizontal, float horizontalInput, 
+        Rigidbody rigidbody, float trust)
     {
 #if UNITY_ANDROID
         horizontalInput = joystickHorizontal;
@@ -83,34 +84,34 @@ public class PlayerMovementController
         }
     }
 
-    public static void StopOutOfBounds(Transform transform, Rigidbody rigidbody, float torque)
+    public void StopOutOfBounds(Transform transform, Rigidbody rigidbody, Camera camera)
     {
-        var worldToViewPortPosition = Camera.main.WorldToViewportPoint(transform.position);
-        worldToViewPortPosition.x = Mathf.Clamp01(worldToViewPortPosition.x);
-
-        if (worldToViewPortPosition.x > 0.99)
+        var viewPort = camera.WorldToViewportPoint(transform.position);
+        viewPort.x = Mathf.Clamp01(viewPort.x);
+        
+        if (viewPort.x > 0.99)
         {
             rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(-Vector3.right * GameManager.Instance.borderForce, ForceMode.Impulse);
+            rigidbody.AddForce(-Vector3.right * _borderForce, ForceMode.Impulse);
         }
 
-        if (worldToViewPortPosition.x < 0.01)
+        if (viewPort.x < 0.01)
         {
             rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(Vector3.right * GameManager.Instance.borderForce, ForceMode.Impulse);
+            rigidbody.AddForce(Vector3.right * _borderForce, ForceMode.Impulse);
         }
 
 
-        if (rigidbody.transform.position.z > GameManager.Instance.borderZ)
+        if (rigidbody.transform.position.z > GameManager.Instance.borderZ )//|| zBoundary> 0.99)
         {
             rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(-Vector3.forward * GameManager.Instance.borderForce, ForceMode.Impulse);
+            rigidbody.AddForce(-Vector3.forward * _borderForce, ForceMode.Impulse);
         }
 
-        if (rigidbody.transform.position.z < -worldToViewPortPosition.z)
+        if (rigidbody.transform.position.z < -viewPort.z)// || zBoundary < 0.01)
         {
             rigidbody.velocity = Vector3.zero;
-            rigidbody.AddForce(Vector3.forward * GameManager.Instance.borderForce, ForceMode.Impulse);
+            rigidbody.AddForce(Vector3.forward * _borderForce, ForceMode.Impulse);
         }
     }
 

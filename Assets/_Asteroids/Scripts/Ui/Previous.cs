@@ -13,7 +13,7 @@ public class Previous : MenuData
     {
         return GameManager.State != GameState.Mission;
     }
-
+    
     public override void Apply(GameObject target)
     {
         SystemsFacade.Instance.uiCards.AddPrevious();

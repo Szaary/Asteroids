@@ -15,5 +15,7 @@ MonoBehaviour:
   title: Mission
   description: Select next objective
   loopInMenu: 0
+  resource: {fileID: 11400000, guid: 671e60c2441284c49b05d342c9df5b48, type: 2}
+  unlockCost: 0
   container: {fileID: 11400000, guid: 2b0ef867784a5224b83897be3cdc0fc1, type: 2}
   menuName: Select mission

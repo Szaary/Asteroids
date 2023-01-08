@@ -13,7 +13,7 @@ public abstract class Mission : MenuData
         // return unlockCost;
         return (resource, reward);
     }
-
+    
     protected void CreateTimeObjective(Action<float> onTick)
     {
         var objective = SystemsFacade.Instance.hud.CreateObjective();
